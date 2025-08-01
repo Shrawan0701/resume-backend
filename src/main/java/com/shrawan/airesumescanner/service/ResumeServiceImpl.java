@@ -187,7 +187,7 @@ public class ResumeServiceImpl implements ResumeService {
         content.setLeading(18f);
 
         float margin = 50;
-        float yStart = page.getMediaBox().getHeight() - margin; // top of page
+        float yStart = page.getMediaBox().getHeight() - margin; 
         float yPosition = yStart;
 
         content.beginText();
@@ -209,14 +209,14 @@ public class ResumeServiceImpl implements ResumeService {
         content.newLine();
         yPosition -= 18;
 
-        // For each suggestion line
+       
         for (String line : suggestions.split("\n")) {
-            // Check if we need a new page
+           
             if (yPosition <= margin) {
                 content.endText();
                 content.close();
 
-                // Add new page
+              
                 page = new PDPage(PDRectangle.A4);
                 doc.addPage(page);
                 content = new PDPageContentStream(doc, page);
