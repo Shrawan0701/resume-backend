@@ -33,7 +33,6 @@ public class Analytics {
     @Column(name = "suggestions", columnDefinition = "TEXT")
     private String suggestions;
 
-    // === Constructors ===
 
     public Analytics() {
     }
@@ -49,7 +48,6 @@ public class Analytics {
         this.suggestions = suggestions;
     }
 
-    // === Getters and Setters ===
 
     public Long getId() {
         return id;
