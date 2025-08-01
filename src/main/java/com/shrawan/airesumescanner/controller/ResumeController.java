@@ -11,7 +11,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/resume")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {
+        "http://localhost:3000",
+        "https://re-vamp-liart.vercel.app"
+})
+
 public class ResumeController {
 
     private final ResumeService resumeService;
