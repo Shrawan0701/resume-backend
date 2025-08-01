@@ -13,6 +13,7 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,13 +21,14 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class ResumeServiceImpl implements ResumeService {
 
     private final AnalyticsRepository analyticsRepository;
+
+    @Value("${ollama.base-url}")
+    private String ollamaBaseUrl;
 
     @Autowired
     public ResumeServiceImpl(AnalyticsRepository analyticsRepository) {
@@ -123,15 +125,15 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     private void ensureOllamaReady() throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:11434/api/tags").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(ollamaBaseUrl + "/api/tags").openConnection();
         connection.setRequestMethod("GET");
         if (connection.getResponseCode() != 200) {
-            throw new RuntimeException("Ollama is not ready. Please start the service.");
+            throw new RuntimeException("Ollama is not ready. Please check the server.");
         }
     }
 
     private String callOllamaAPI(String prompt) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:11434/api/generate").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(ollamaBaseUrl + "/api/generate").openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setDoOutput(true);
@@ -178,7 +180,6 @@ public class ResumeServiceImpl implements ResumeService {
 
     private String generateSummaryPdf(String suggestions, int atsScore, String atsFeedback) throws IOException {
         PDDocument doc = new PDDocument();
-
         PDPage page = new PDPage(PDRectangle.A4);
         doc.addPage(page);
 
@@ -187,7 +188,7 @@ public class ResumeServiceImpl implements ResumeService {
         content.setLeading(18f);
 
         float margin = 50;
-        float yStart = page.getMediaBox().getHeight() - margin; 
+        float yStart = page.getMediaBox().getHeight() - margin;
         float yPosition = yStart;
 
         content.beginText();
@@ -209,14 +210,11 @@ public class ResumeServiceImpl implements ResumeService {
         content.newLine();
         yPosition -= 18;
 
-       
         for (String line : suggestions.split("\n")) {
-           
             if (yPosition <= margin) {
                 content.endText();
                 content.close();
 
-              
                 page = new PDPage(PDRectangle.A4);
                 doc.addPage(page);
                 content = new PDPageContentStream(doc, page);
@@ -224,7 +222,6 @@ public class ResumeServiceImpl implements ResumeService {
                 content.setLeading(18f);
 
                 yPosition = yStart;
-
                 content.beginText();
                 content.newLineAtOffset(margin, yPosition);
             }
